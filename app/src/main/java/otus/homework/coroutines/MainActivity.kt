@@ -2,6 +2,8 @@ package otus.homework.coroutines
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,7 +20,9 @@ class MainActivity : AppCompatActivity() {
         catsPresenter = CatsPresenter(diContainer.service)
         view.presenter = catsPresenter
         catsPresenter.attachView(view)
-        catsPresenter.onInitComplete()
+        lifecycleScope.launch {
+            catsPresenter.onInitComplete()
+        }
     }
 
     override fun onStop() {
