@@ -2,12 +2,20 @@ package otus.homework.coroutines
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var catsPresenter: CatsPresenter
 
     private val diContainer = DiContainer()
+
+    private val viewModel by lazy {
+        ViewModelProvider(
+            this,
+            CatsViewModel.provideFactory(diContainer.catsService, diContainer.imageService)
+        )[CatsViewModel::class.java]
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
