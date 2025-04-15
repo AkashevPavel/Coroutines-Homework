@@ -6,8 +6,14 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
 
+data class CatsUIState(
+    val fact: Fact,
+    val image: Image
+)
+
 class CatsPresenter(
     private val catsService: CatsService,
+    private val imageService: ImageService,
     private val presenterScope: CoroutineScope
 ) {
 
@@ -17,12 +23,10 @@ class CatsPresenter(
     fun onInitComplete() {
         _job = presenterScope.launch {
             try {
-//                imageService.getCatImage().also {
-//                    println("image url ${it.url}")
-//                }
-                catsService.getCatFact().also { fact ->
-                    _catsView?.populate(fact)
-                }
+                val image = imageService.getCatImage().first()
+                val fact = catsService.getCatFact()
+
+                _catsView?.populate(CatsUIState(fact, image))
             } catch (e: CancellationException) {
                 throw e
             } catch (e: SocketTimeoutException) {

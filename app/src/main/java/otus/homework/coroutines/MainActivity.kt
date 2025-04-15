@@ -17,6 +17,7 @@ class MainActivity : AppCompatActivity() {
 
         catsPresenter = CatsPresenter(
             diContainer.catsService,
+            diContainer.imageService,
             diContainer.presenterScope
         )
         view.presenter = catsPresenter
