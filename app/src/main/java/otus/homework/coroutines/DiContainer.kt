@@ -8,14 +8,14 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class DiContainer {
 
-    private val retrofit by lazy {
-        Retrofit.Builder()
-            .baseUrl("https://catfact.ninja/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
+    private fun buildRetrofit(baseUrl: String) = Retrofit.Builder()
+        .baseUrl(baseUrl)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
 
-    val service by lazy { retrofit.create(CatsService::class.java) }
+    val catsService by lazy { buildRetrofit("https://catfact.ninja/").create(CatsService::class.java) }
+
+    val imageService by lazy { buildRetrofit("https://api.thecatapi.com/v1/images/").create(ImageService::class.java) }
 
     val presenterScope get() = CoroutineScope(CoroutineName("CatsCoroutine") + Dispatchers.Main)
 }

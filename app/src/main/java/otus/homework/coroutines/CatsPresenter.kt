@@ -17,6 +17,9 @@ class CatsPresenter(
     fun onInitComplete() {
         _job = presenterScope.launch {
             try {
+//                imageService.getCatImage().also {
+//                    println("image url ${it.url}")
+//                }
                 catsService.getCatFact().also { fact ->
                     _catsView?.populate(fact)
                 }
