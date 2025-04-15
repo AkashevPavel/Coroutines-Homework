@@ -8,11 +8,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
 
-data class CatsUIState(
-    val fact: Fact,
-    val image: Image
-)
-
 class CatsPresenter(
     private val catsService: CatsService,
     private val imageService: ImageService,
