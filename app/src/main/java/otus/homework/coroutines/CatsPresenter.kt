@@ -2,7 +2,9 @@ package otus.homework.coroutines
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
 
@@ -18,15 +20,18 @@ class CatsPresenter(
 ) {
 
     private var _catsView: ICatsView? = null
-    private var _job: Job? = null
+    private var job: Job? = null
 
     fun onInitComplete() {
-        _job = presenterScope.launch {
-            try {
-                val image = imageService.getCatImage().first()
-                val fact = catsService.getCatFact()
+        job = presenterScope.async {
+            val image = async { imageService.getCatImage().first() }
+            val fact = async { catsService.getCatFact() }
 
-                _catsView?.populate(CatsUIState(fact, image))
+            _catsView?.populate(CatsUIState(fact.await(), image.await()))
+        }
+        presenterScope.launch {
+            try {
+                (job as Deferred<*>).await()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: SocketTimeoutException) {
@@ -51,7 +56,7 @@ class CatsPresenter(
     }
 
     fun cancelCoroutine() {
-        _job?.run {
+        job?.run {
             if (isActive) {
                 cancel()
             }

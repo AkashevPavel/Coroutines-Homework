@@ -29,9 +29,9 @@ class MainActivity : AppCompatActivity() {
         if (isFinishing) {
             catsPresenter.apply {
                 detachView()
-                cancelCoroutine()
             }
         }
+        catsPresenter.cancelCoroutine()
         super.onStop()
     }
 }
