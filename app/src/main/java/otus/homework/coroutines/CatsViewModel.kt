@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import java.net.SocketTimeoutException
 
 class CatsViewModel(
     private val catsService: CatsService,
@@ -20,10 +21,16 @@ class CatsViewModel(
 ) : ViewModel() {
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        CrashMonitor.trackWarning(throwable)
+        when(throwable) {
+            is SocketTimeoutException -> _uiState.tryEmit(Result.Error(Throwable("Не удалось получить ответ от сервера")))
+            else -> {
+                CrashMonitor.trackWarning(throwable)
+                _uiState.tryEmit(Result.Error(throwable))
+            }
+        }
     }
 
-    private val _uiState = MutableStateFlow<CatsUIState?>(null)
+    private val _uiState = MutableStateFlow<Result?>(null)
     val uiState = _uiState.onStart { load() }
         .filterNotNull()
         .shareIn(
@@ -38,9 +45,11 @@ class CatsViewModel(
             val image = async { imageService.getCatImage() }
 
             _uiState.emit(
-                CatsUIState(
-                    fact = fact.await(),
-                    image = image.await()[0]
+                Result.Success(
+                    CatsUIState(
+                        fact = fact.await(),
+                        image = image.await()[0]
+                    )
                 )
             )
         }

@@ -4,11 +4,13 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.launch
+import otus.homework.coroutines.Result.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,7 +34,7 @@ class MainActivity : AppCompatActivity() {
         image = view.findViewById(R.id.catImage)
         loadButton = view.findViewById(R.id.button)
 
-        configureFact()
+        processState()
         setListeners()
     }
 
@@ -42,12 +44,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun configureFact() {
+    private fun processState() {
         lifecycleScope.launch {
             viewModel.uiState.collect { state ->
-                fact.text = state.fact.fact
-                Picasso.get().load(state.image.url).into(image)
+                when(state) {
+                    is Success<*> -> {
+                        (state.data as CatsUIState).also {
+                            fact.text = it.fact.fact
+                            Picasso.get().load(it.image.url).into(image)
+                        }
+                    }
+                    is Error -> showToast(state.error)
+                }
             }
         }
+    }
+
+    private fun showToast(throwable: Throwable, duration: Int = Toast.LENGTH_LONG) {
+        Toast.makeText(this, throwable.message, duration).show()
     }
 }
