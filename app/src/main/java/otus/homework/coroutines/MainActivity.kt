@@ -54,7 +54,10 @@ class MainActivity : AppCompatActivity() {
                             Picasso.get().load(it.image.url).into(image)
                         }
                     }
-                    is Error -> showToast(state.error)
+                    is Error -> {
+                        showToast(state.error)
+                        viewModel.load()
+                    }
                 }
             }
         }
